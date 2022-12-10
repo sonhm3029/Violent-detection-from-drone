@@ -162,3 +162,7 @@ cython_debug/
 # Custom ignore
 !spec*.pt
 *.pt
+
+models/yolov7
+
+!*/extract_frame.py
