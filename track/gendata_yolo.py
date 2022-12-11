@@ -1,6 +1,7 @@
 import argparse
 import time
 from pathlib import Path
+import os
 
 import cv2
 import pandas as pd
@@ -14,10 +15,19 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+import datetime
 
 
 NUM_FRAME_PER_SEQUENCE = 15
 SOURCE_DATA = "../../data"
+
+
+
+def generateUniquePrefix():
+    currentTime = datetime.datetime.now()
+    prefixDate = "_".join(str(currentTime.date()).split("-"))
+    prefixTimestamp = "".join(str(currentTime.timestamp()).split("."))
+    return f"{prefixDate}_{prefixTimestamp}"
 
 def detect(opt):
     
@@ -113,5 +123,8 @@ def detect(opt):
         
         # Check if 8th frame is having obj
         if count >= NUM_FRAME_PER_SEQUENCE and tempImgsSeq[7][1] == 0:
-            for img in tempImgsSeq:
-                pass
+            folderName = generateUniquePrefix()
+            folderDir = f"{SOURCE_DATA}/{folderName}"
+            os.mkdir(folderDir)
+            for idx, save_img in enumerate(tempImgsSeq):
+                cv2.imwrite(f"{folderDir}/{folderName}_frame_{idx+1}.jpg", save_img[0])

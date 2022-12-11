@@ -167,3 +167,4 @@ cython_debug/
 models/yolov7
 !models/yolov7/extract_frame.py
 
+data
