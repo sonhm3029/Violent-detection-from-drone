@@ -163,6 +163,7 @@ cython_debug/
 !spec*.pt
 *.pt
 
-models/yolov7
 
-!*/extract_frame.py
+models/yolov7
+!models/yolov7/extract_frame.py
+
