@@ -60,7 +60,7 @@ class Violence_Drone_Dataset(Dataset):
                     )
                 data.append(data_point)
                 time.sleep(0.1)
-        self.data = np.array(data, dtype=object)
+        self.data = data
         self.targets = np.array([
             folderInfo["class index"]
             for folderInfo in self.data_df.iloc
@@ -71,10 +71,7 @@ class Violence_Drone_Dataset(Dataset):
         
     def __len__(self):
         return self.data_len
-    def __getitem__(self, index):
-        if torch.is_tensor(index):
-            ids = index.tolist()
-        
+    def __getitem__(self, index):    
         images = self.data[index]
         labels = self.targets[index]
         
@@ -84,17 +81,17 @@ class Violence_Drone_Dataset(Dataset):
     
 
 
-class MergeChannelTransForm:
+class MergeChannelTransForm(object):
     """
     Merge sequences of 15 images from dimension (15, h, w, 3) => (h, w, 45) 
     """
     def __init__(self):
         pass
-    def __call__(sel, seq):
+    def __call__(self, seq):
         return torch.cat(tuple(seq), 2)
     
     
-a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm)
+a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
 
-print(a)
+
 
