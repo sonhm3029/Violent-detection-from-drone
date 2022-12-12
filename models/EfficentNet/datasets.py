@@ -90,8 +90,16 @@ class MergeChannelTransForm(object):
     def __call__(self, seq):
         return torch.cat(tuple(seq), 2)
     
-    
-a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
+  
+class MixupTransform(object):
+    """
+    Mixup
+    """  
+    def __init__(self, alpha = 0.5):
+        self.alpha = alpha
+    def __call__(self, seq):
+        pass
+# a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
 
 
 
