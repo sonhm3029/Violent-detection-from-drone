@@ -57,7 +57,7 @@ class Violence_Drone_Dataset(Dataset):
                 for frame_idx in range(NUM_IMG_PER_SEQ):
                     numpy_img = cv2.imread(f"{self.root_dir}/{folderName}/{folderName}_frame_{frame_idx + 1}.jpg")
                     data_point.append(
-                        torch.from_numpy(numpy_img)
+                        numpy_img
                     )
                 data.append(data_point)
                 time.sleep(0.1)
@@ -89,9 +89,9 @@ class MergeChannelTransForm(object):
     def __init__(self):
         pass
     def __call__(self, seq):
-        return torch.cat(tuple(seq), 2)
+        return np.dstack(tuple(seq))
     
-  
+
 class MixupTransform(object):
     """
     Mixup
@@ -99,14 +99,16 @@ class MixupTransform(object):
     def __init__(self, alpha = 0.5):
         self.alpha = alpha
     def __call__(self, seq):
-        alpha = torch.tensor([self.alpha])
-        l = torch.distributions.beta.Beta(alpha, alpha).sample().item()
+        alpha = self.alpha
+        l = np.random.beta(alpha, alpha, 1)
         
         middleImg = seq[7]
         del seq[7]
         result = middleImg * l + seq[0]*(1-l)
         for img in seq[0:]:
             result = result * l + (1-l) * img
+        
+        return result.astype(np.uint8)
 
 # a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
 # a = Violence_Drone_Dataset(train=False, transform=MixupTransform())
@@ -118,5 +120,4 @@ class MixupTransform(object):
 #     count +=1
 #     cv2.imshow(f"Frame{count}", img)
 #     cv2.waitKey(0)
-
 

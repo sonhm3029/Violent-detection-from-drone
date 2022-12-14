@@ -168,3 +168,5 @@ models/yolov7
 !models/yolov7/extract_frame.py
 
 data
+
+temp_store
