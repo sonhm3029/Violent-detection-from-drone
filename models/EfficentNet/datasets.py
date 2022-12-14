@@ -8,6 +8,7 @@ from tqdm import tqdm
 import time
 import csv
 import pandas as pd
+import matplotlib.pyplot as plt
 
 pretrain_model = efficientnet_b0(pretrain=True)
 
@@ -98,8 +99,24 @@ class MixupTransform(object):
     def __init__(self, alpha = 0.5):
         self.alpha = alpha
     def __call__(self, seq):
-        pass
-# a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
+        alpha = torch.tensor([self.alpha])
+        l = torch.distributions.beta.Beta(alpha, alpha).sample().item()
+        
+        middleImg = seq[7]
+        del seq[7]
+        result = middleImg * l + seq[0]*(1-l)
+        for img in seq[0:]:
+            result = result * l + (1-l) * img
 
+# a = Violence_Drone_Dataset(train=False, transform = MergeChannelTransForm())
+# a = Violence_Drone_Dataset(train=False, transform=MixupTransform())
+
+# count = 0
+# for img, label in a:
+#     if count == 3:
+#         break
+#     count +=1
+#     cv2.imshow(f"Frame{count}", img)
+#     cv2.waitKey(0)
 
 
