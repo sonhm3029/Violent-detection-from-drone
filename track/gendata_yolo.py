@@ -2,6 +2,7 @@ import argparse
 import time
 from pathlib import Path
 import os
+import numpy as np
 
 import cv2
 import pandas as pd
@@ -28,6 +29,30 @@ def generateUniquePrefix():
     prefixDate = "_".join(str(currentTime.date()).split("-"))
     prefixTimestamp = "".join(str(currentTime.timestamp()).split("."))
     return f"{prefixDate}_{prefixTimestamp}"
+
+# def saveImgProcessing(listImgBbox):
+#     """Find the top left most point 
+#     and bottom right most point
+#     """
+#     # Find max number of bbox (events happen) in seq of images
+#     totalEvents = max([len(bboxes) for bboxes in listImgBbox])
+def roundZeros(coordinates: np.ndarray):
+    result = [int(value) if value > 0 else 0 for value in coordinates]
+    return result
+
+def getCropBBox(listBboxes, padding=20):
+    """
+    Padding default 20px in width anh height
+    """
+    result = [roundZeros(np.array(xyxy) - padding) for xyxy in listBboxes]
+    
+    return result
+
+def cropImg(img, topLeft, bottomRight):
+    width = bottomRight[0] - topLeft[0]
+    height = bottomRight[1] - topLeft[1]
+    # cropped = img[start_row:end_row, start_col:end_col]
+    return img[topLeft[1]: bottomRight[1], topLeft[0]: bottomRight[0]]
 
 def detect(opt):
     
@@ -104,7 +129,8 @@ def detect(opt):
         
         # Process detections
         # Save to csv obj
-        save_obj = [1,1]
+        # img, class, bbox list
+        save_obj = [1,1, []]
         # Pred: [det]
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
@@ -114,17 +140,40 @@ def detect(opt):
             save_obj[0] = im0
             # If detect obj in frame
             if len(det):
+                # Rescale boxes from img_size to im0 size
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+
+                # Print results
+                for c in det[:, -1].unique():
+                    n = (det[:, -1] == c).sum()  # detections per class
+                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+
+                # Write results
+                # List bounding boxes found in frame
+                # xyxy -> top left (x, y) vs bottom right (x,y)
                 save_obj[1] = 0
+                save_obj[2] = [item[:4].tolist() for item in reversed(det)]
+                    
+                
             tempImgsSeq.append(tuple(save_obj))
-            save_obj = [1,1]
+            save_obj = [1,1, []]
         
         if count >= NUM_FRAME_PER_SEQUENCE + 1:
             tempImgsSeq.pop(0)
         
         # Check if 8th frame is having obj
         if count >= NUM_FRAME_PER_SEQUENCE and tempImgsSeq[7][1] == 0:
-            folderName = generateUniquePrefix()
-            folderDir = f"{SOURCE_DATA}/{folderName}"
-            os.mkdir(folderDir)
-            for idx, save_img in enumerate(tempImgsSeq):
-                cv2.imwrite(f"{folderDir}/{folderName}_frame_{idx+1}.jpg", save_img[0])
+            listBboxes = getCropBBox(tempImgsSeq[7][2])
+            for bbox_idx, bbox in  enumerate(listBboxes):
+                folderName = generateUniquePrefix()
+                folderDir = f"{SOURCE_DATA}/{folderName}"
+                os.mkdir(folderDir)
+                topLeft = bbox[:2]
+                bottomRight = bbox[2:]
+                for idx, save_img in enumerate(tempImgsSeq):
+                    # Crop list image before save
+                    print(f"Img {idx + 1} bbox number {bbox_idx + 2}:",bbox)
+                    cv2.imwrite(f"{folderDir}/{folderName}_frame_{idx+1}.jpg",
+                                cropImg(save_img[0], topLeft, bottomRight))
+            
+            
