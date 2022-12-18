@@ -28,6 +28,12 @@ def splitDataset(train_ratio, dataset_root = DEFAULT_DATA_PATH):
     train_len = int(train_ratio * total_len)
     
     for idx, folderName in enumerate(listDataFolder):
+        
+        if(len(os.listdir(f"{dataset_root}/{folderName}")) <NUM_IMG_PER_SEQ):
+            print(f"Found empty or not enough images in seq folder, remove folder {folderName}")
+            # os.remove(f"{dataset_root}/{folderName}")
+            continue
+        
         if (idx + 1) > train_len:
             list_data.append({"class index": 0, "folderName": folderName, "label": "Violence", "dataset":"test"})
         else:
@@ -39,7 +45,7 @@ def splitDataset(train_ratio, dataset_root = DEFAULT_DATA_PATH):
         df.writerows(list_data)
 
 class Violence_Drone_Dataset(Dataset):
-    def __init__(self, root_dir = DEFAULT_DATA_PATH, transform = None, train=True):
+    def __init__(self, root_dir = DEFAULT_DATA_PATH, transform = None, train=True, useVal= False):
         self.root_dir = root_dir
         self.transform = transform
         type = "train" if train else "test"
@@ -49,6 +55,8 @@ class Violence_Drone_Dataset(Dataset):
         self.data_len = len(list_records)
         
         data = []
+        # if train and useVal:
+            
         with tqdm(list_records, unit="folder") as listFolder:
             for idx, folderInfo in enumerate(listFolder):
                 listFolder.set_description(f"Folder [{idx + 1}/{self.data_len}]")

@@ -162,6 +162,7 @@ cython_debug/
 # Custom ignore
 !spec*.pt
 *.pt
+*.pth
 
 
 models/yolov7
