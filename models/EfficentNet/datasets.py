@@ -97,7 +97,7 @@ class MergeChannelTransForm(object):
     def __init__(self):
         pass
     def __call__(self, seq):
-        return np.dstack(tuple(seq))
+        return np.dstack(tuple(seq.copy()))
     
 
 class MixupTransform(object):
@@ -109,11 +109,11 @@ class MixupTransform(object):
     def __call__(self, seq):
         alpha = self.alpha
         l = np.random.beta(alpha, alpha, 1)
-        
-        middleImg = seq[7]
-        del seq[7]
-        result = middleImg * l + seq[0]*(1-l)
-        for img in seq[0:]:
+        seq_clone = seq.copy()
+        middleImg = seq_clone[7]
+        del seq_clone[7]
+        result = middleImg * l + seq_clone[0]*(1-l)
+        for img in seq_clone[0:]:
             result = result * l + (1-l) * img
         
         return result.astype(np.uint8)
