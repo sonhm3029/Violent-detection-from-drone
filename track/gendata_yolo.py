@@ -17,12 +17,18 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 import datetime
+import secrets
+import string
+
 
 
 NUM_FRAME_PER_SEQUENCE = 15
-SOURCE_DATA = "../../data"
+SOURCE_DATA = "/home/hoang/Violence_detection_byDrone/data"
 
 
+
+def generateUniqueString():
+    return ''.join(secrets.choice(string.ascii_uppercase + string.ascii_lowercase) for i in range(32))
 
 def generateUniquePrefix():
     currentTime = datetime.datetime.now()
@@ -44,7 +50,7 @@ def getCropBBox(listBboxes, padding=20):
     """
     Padding default 20px in width anh height
     """
-    result = [roundZeros(np.array(xyxy) - padding) for xyxy in listBboxes]
+    result = [roundZeros(np.array(xyxy.copy()) - padding) for xyxy in listBboxes]
     
     return result
 
@@ -54,16 +60,16 @@ def cropImg(img, topLeft, bottomRight):
     # cropped = img[start_row:end_row, start_col:end_col]
     return img[topLeft[1]: bottomRight[1], topLeft[0]: bottomRight[0]]
 
-def detect(opt):
+def detect():
     
-    source, weights, imgsz = opt['source'], opt['weight'], opt['img-size']
+    source, weights, imgsz = opt.source, opt.weights, opt.img_size
 
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
 
     # Initialize
     # set_logging()
-    device = select_device(opt['device'])
+    device = select_device(opt.device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
 
     # Load model
@@ -108,6 +114,7 @@ def detect(opt):
         if(vid_cap != tempVidCap):
             count = 0
             tempVidCap = vid_cap
+            tempImgsSeq = []
         count +=1
         
         
@@ -125,7 +132,7 @@ def detect(opt):
             pred = model(img, augment=False)[0]
         # Apply NMS
         pred = non_max_suppression(
-            pred, opt['conf_thres'], opt['iou_thres'], classes=opt['classes'], agnostic=False)
+            pred, opt.conf_thres, opt.iou_thres, classes=None, agnostic=False)
         
         # Process detections
         # Save to csv obj
@@ -165,7 +172,7 @@ def detect(opt):
         if count >= NUM_FRAME_PER_SEQUENCE and tempImgsSeq[7][1] == 0:
             listBboxes = getCropBBox(tempImgsSeq[7][2])
             for bbox_idx, bbox in  enumerate(listBboxes):
-                folderName = generateUniquePrefix()
+                folderName = generateUniqueString()
                 folderDir = f"{SOURCE_DATA}/{folderName}"
                 os.mkdir(folderDir)
                 topLeft = bbox[:2]
@@ -176,4 +183,16 @@ def detect(opt):
                     cv2.imwrite(f"{folderDir}/{folderName}_frame_{idx+1}.jpg",
                                 cropImg(save_img[0], topLeft, bottomRight))
             
-            
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weights', nargs='+', type=str, default='yolov7.pt', help='model.pt path(s)')
+    parser.add_argument('--source', type=str, default='inference/images', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
+    parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
+    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    opt = parser.parse_args()
+    print(opt)  
+    
+    with torch.no_grad():
+        detect()    
