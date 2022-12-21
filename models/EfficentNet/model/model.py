@@ -1,5 +1,3 @@
-import torch
-import torchvision
 import torch.nn as nn
 from torchvision.models import efficientnet_b0
 
@@ -31,5 +29,3 @@ class ViolenceEfficientNet(nn.Module):
 
         return output    
     
-model = efficientnet_b0(pretrained=True)
-print(model.classifier)

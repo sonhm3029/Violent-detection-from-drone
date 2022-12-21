@@ -1,1 +1,1 @@
-from models.yolov7 import detect
+from models.EfficentNet.train_v1 import *
