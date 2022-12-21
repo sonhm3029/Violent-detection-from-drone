@@ -1,4 +1,4 @@
-from utils.datasets import splitDataset
+from utils.eff_datasets import splitDataset
 import argparse
 
 
