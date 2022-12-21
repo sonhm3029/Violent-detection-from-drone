@@ -14,6 +14,9 @@ from torchvision.transforms import InterpolationMode
 from torchsummary import summary
 from torchvision.models import efficientnet_b0
 
+def hello():
+    print("Hello")
+
 def fit(model, dataloader, 
         epoch, epochs, device, 
         criterion, optimizer,  train=True):

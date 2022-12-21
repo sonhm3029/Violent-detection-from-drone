@@ -1,1 +1,4 @@
-from models.EfficentNet.train_v1 import *
+from models.EfficentNet.train_v2 import hello
+
+
+hello()

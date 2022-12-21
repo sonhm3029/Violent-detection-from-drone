@@ -165,7 +165,7 @@ cython_debug/
 *.pth
 
 
-models/yolov7
+# models/yolov7
 !models/yolov7/extract_frame.py
 
 data
