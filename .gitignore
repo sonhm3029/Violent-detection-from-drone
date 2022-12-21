@@ -262,4 +262,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-assets
+assets/*
+eff_runs/*

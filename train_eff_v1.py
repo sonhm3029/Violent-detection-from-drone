@@ -1,9 +1,9 @@
 import argparse
 import time
+import matplotlib.pyplot as plt
 
-
-from model.model import *
-from utils.datasets import *
+from models.efficientnet import *
+from utils.eff_datasets import *
 
 
 import torch
@@ -12,6 +12,17 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 from torchvision.transforms import InterpolationMode
 from torchsummary import summary
+
+def plotting(colors: tuple, labels : tuple, savefigName: str, data: tuple, figsize=(10, 7)):
+    train, val = data
+    color_train, color_val = colors
+    label_train, label_val = labels
+    
+    plt.figure(figsize=figsize)
+    plt.plot(train, color=color_train, label=label_train)
+    plt.plot(val, color=color_val, label=label_val)
+    plt.legend()
+    plt.savefig(savefigName)
 
 def fit(model, dataloader, 
         epoch, epochs, device, 
@@ -134,9 +145,29 @@ def train():
         val_accuracy.append(val_epoch_acc)
         
         if( (epoch + 1) % save_model_epoch == 0):
-            if not os.path.exists("runs"):
-                os.mkdir("runs")
-            torch.save(model.state_dict, "runs/last_weights.pth")
+            new_run_idx = 1
+            if not os.path.exists("eff_runs"):
+                os.mkdir("eff_runs")
+            else:
+                num_runs_folder = len(os.listdir("eff_runs"))
+                new_run_idx = num_runs_folder + 1
+            
+            runs_folder_name = f"eff_runs/exp_{new_run_idx}"
+            os.mkdir(runs_folder_name)
+                
+            torch.save(model.state_dict, f"{runs_folder_name}/last_weights.pth")
+            
+            # Plotting loss
+            plotting(colors=('orange', 'red'),
+                    labels=("train loss", "val loss"),
+                    savefigName=f"{runs_folder_name}/loss.png",
+                    data=(train_loss, val_loss))
+            # Ploting acc
+            plotting(colors=('green', 'blue'),
+                    labels=("train acc", "val acc"),
+                    savefigName=f"{runs_folder_name}/acc.png",
+                    data=(train_accuracy, val_accuracy))
+            
             print("Model saved!")
     
     end = time.time()
@@ -157,4 +188,3 @@ if __name__ == '__main__':
     print(opt)  
     
     train()
-     
