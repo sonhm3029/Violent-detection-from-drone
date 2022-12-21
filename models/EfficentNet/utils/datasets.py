@@ -39,6 +39,7 @@ def splitDataset(train_ratio, dataset_root = DEFAULT_DATA_PATH):
         else:
             list_data.append({"class index": 0, "folderName": folderName, "label": "Violence", "dataset":"train"})
     keys = list_data[0].keys()
+    
     with open(f'{dataset_root}/dataset_info.csv', 'w', newline='') as output_file:
         df = csv.DictWriter(output_file, keys)
         df.writeheader()
