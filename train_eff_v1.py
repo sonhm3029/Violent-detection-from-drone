@@ -83,6 +83,7 @@ def train():
     
     # Model loaded in
     model = ViolenceEfficientNet()
+    model = model.to(device)
     summary(model, (45, 224, 224))
     
     MEAN, STD = [0.51551778, 0.43288471, 0.44265668]*15, [0.19281362, 0.1960019 , 0.20439348]*15
@@ -122,7 +123,7 @@ def train():
     
     
     # Training and validation
-    model = model.to(device)
+    
     
     start = time.time()
     

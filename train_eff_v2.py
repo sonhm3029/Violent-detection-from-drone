@@ -90,6 +90,7 @@ def train():
         nn.Linear(in_features=1280, out_features=640, bias=True),
         nn.Linear(in_features=640, out_features=3, bias=True)
     )
+    model = model.to(device)
     summary(model, (3, 224, 224))
     
     MEAN, STD = [0.51551778, 0.43288471, 0.44265668], [0.19281362, 0.1960019 , 0.20439348]
@@ -129,7 +130,7 @@ def train():
     
     
     # Training and validation
-    model = model.to(device)
+
     
     start = time.time()
     
