@@ -23,7 +23,7 @@ import string
 
 
 NUM_FRAME_PER_SEQUENCE = 15
-SOURCE_DATA = "/home/hoang/Violence_detection_byDrone/data"
+
 
 
 
@@ -61,7 +61,7 @@ def cropImg(img, topLeft, bottomRight):
     return img[topLeft[1]: bottomRight[1], topLeft[0]: bottomRight[0]]
 
 def detect():
-    
+    SOURCE_DATA = opt.save_data_folder
     source, weights, imgsz = opt.source, opt.weights, opt.img_size
 
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
@@ -191,6 +191,7 @@ if __name__ == '__main__':
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--save-data-folder', type=str, default='data', help='folder to save generated data')
     opt = parser.parse_args()
     print(opt)  
     
