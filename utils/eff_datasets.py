@@ -1,5 +1,3 @@
-import torch
-from torchvision.models import efficientnet_b0
 from torch.utils.data import Dataset
 import os
 import cv2
@@ -8,10 +6,6 @@ from tqdm import tqdm
 import time
 import csv
 import pandas as pd
-import matplotlib.pyplot as plt
-
-pretrain_model = efficientnet_b0(pretrain=True)
-
 
 DEFAULT_DATA_PATH ="data"
 NUM_IMG_PER_SEQ = 15
