@@ -21,23 +21,28 @@ def splitDataset(train_ratio, dataset_root = DEFAULT_DATA_PATH):
     if(os.path.exists(f"{dataset_root}/dataset_info.csv")):
         os.remove(f"{dataset_root}/dataset_info.csv")
     
-    listDataFolder = os.listdir(dataset_root).copy()
+    # listDataFolder = os.listdir(dataset_root).copy()
     list_data = []
     
-    total_len = len(listDataFolder)
-    train_len = int(train_ratio * total_len)
-    
-    for idx, folderName in enumerate(listDataFolder):
+    for type_class in os.listdir(dataset_root):
+        listDataFolder = os.listdir(f"{dataset_root}/{type_class}")
         
-        if(len(os.listdir(f"{dataset_root}/{folderName}")) <NUM_IMG_PER_SEQ):
-            print(f"Found empty or not enough images in seq folder, remove folder {folderName}")
-            # os.remove(f"{dataset_root}/{folderName}")
-            continue
+        total_len = len(listDataFolder)
+        train_len = int(train_ratio * total_len)
+        class_idx = 1 if type_class == "yes" else 0
+        labels = "Violence" if type_class == "yes" else "Non Violence"
         
-        if (idx + 1) > train_len:
-            list_data.append({"class index": 0, "folderName": folderName, "label": "Violence", "dataset":"test"})
-        else:
-            list_data.append({"class index": 0, "folderName": folderName, "label": "Violence", "dataset":"train"})
+        for idx, folderName in enumerate(listDataFolder):
+        
+            if(len(os.listdir(f"{dataset_root}/{type_class}/{folderName}")) <NUM_IMG_PER_SEQ):
+                print(f"Found empty or not enough images in seq folder, remove folder {type_class}/{folderName}")
+                # os.remove(f"{dataset_root}/{folderName}")
+                continue
+        
+            if (idx + 1) > train_len:
+                list_data.append({"class index": class_idx, "folderName": f"{type_class}/{folderName}", "label": labels, "dataset":"test"})
+            else:
+                list_data.append({"class index": class_idx, "folderName": f"{type_class}/{folderName}", "label": labels, "dataset":"train"})
     keys = list_data[0].keys()
     
     with open(f'{dataset_root}/dataset_info.csv', 'w', newline='') as output_file:
@@ -64,7 +69,7 @@ class Violence_Drone_Dataset(Dataset):
                 data_point = []
                 folderName = folderInfo["folderName"]
                 for frame_idx in range(NUM_IMG_PER_SEQ):
-                    numpy_img = cv2.imread(f"{self.root_dir}/{folderName}/{folderName}_frame_{frame_idx + 1}.jpg")
+                    numpy_img = cv2.imread(f"{self.root_dir}/{folderName}/{folderName.split('/')[1]}_frame_{frame_idx + 1}.jpg")
                     data_point.append(
                         numpy_img
                     )
@@ -75,7 +80,7 @@ class Violence_Drone_Dataset(Dataset):
             folderInfo["class index"]
             for folderInfo in self.data_df.iloc
         ])
-        self.classes = np.array(np.array(["Violence", "Non Violence"]))
+        self.classes = np.array(np.array(["None Violence", "Violence"]))
         
         print(f"Found {self.data_len} data of type {'Train' if train else 'Test'}")
         
