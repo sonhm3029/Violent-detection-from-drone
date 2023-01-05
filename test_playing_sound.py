@@ -22,7 +22,7 @@ def on_press(key):
 
 toggle_sound = 1
 # you audio here
-wf = wave.open('sound_1.wav', 'rb')
+wf = wave.open('violence_sound_1.wav', 'rb')
 
 # instantiate PyAudio
 p = pyaudio.PyAudio()
@@ -56,7 +56,7 @@ while stream.is_active() or paused==True:
             toggle_sound = 2
         else:
             toggle_sound = 1
-        wf = wave.open(f"sound_{toggle_sound}.wav")
+        wf = wave.open(f"violence_sound_{toggle_sound}.wav")
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                 channels=wf.getnchannels(),
                 rate=wf.getframerate(),
