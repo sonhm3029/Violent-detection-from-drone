@@ -19,9 +19,10 @@
 *.avi
 *.data
 *.json
-*.cfg
-!setup.cfg
-!cfg/yolov3*.cfg
+# *.cfg
+# !setup.cfg
+# !cfg/yolov3*.cfg
+# !fastest-yolo-cfg*.cfg
 
 storage.googleapis.com
 runs/*

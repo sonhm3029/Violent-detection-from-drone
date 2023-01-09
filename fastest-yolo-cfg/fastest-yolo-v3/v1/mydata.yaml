@@ -1,0 +1,16 @@
+DATASET:
+  TRAIN: "/home/hoang/Violence_detection_byDrone/FastestDet/train.txt"
+  VAL: "/home/hoang/Violence_detection_byDrone/FastestDet/test.txt"
+  NAMES: "/home/hoang/Violence_detection_byDrone/FastestDet/category.names"
+MODEL:
+  NC: 2
+  INPUT_WIDTH: 600                                                                                                                                                                                                   
+  INPUT_HEIGHT: 600
+TRAIN:
+  LR: 0.001
+  BATCH_SIZE: 96
+  END_EPOCH: 300
+  MILESTIONES:
+    - 100
+    - 200
+    - 250                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
